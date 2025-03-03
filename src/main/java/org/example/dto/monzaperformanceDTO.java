@@ -1,5 +1,5 @@
 package dto;
-public class monzaperformanceDTO {
+public class monzaPerformanceDTO {
     private int id;
     private String name;
     private String team;
