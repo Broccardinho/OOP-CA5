@@ -1,5 +1,4 @@
 package org.example.main;
-
 import org.example.dao.MonzaPerformanceDAO;
 import org.example.dto.monzaPerformanceDTO;
 import java.util.InputMismatchException;
@@ -20,7 +19,7 @@ public class MainApp {
             try {
                 System.out.print("Enter choice: ");
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Consume newline
+                scanner.nextLine();
 
                 switch (choice) {
                     case 1 -> racerDAO.getAllRacers().forEach(System.out::println);
@@ -47,7 +46,7 @@ public class MainApp {
                             System.out.println("Successfully added racer");
                         } catch (InputMismatchException e) {
                             System.out.println("Invalid input, ensure that you have given valid numbers only.");
-                            scanner.nextLine(); // Consume the invalid input
+                            scanner.nextLine();
                         }
                     }
 
@@ -60,7 +59,7 @@ public class MainApp {
                             System.out.println("Successfully deleted");
                         } catch (InputMismatchException e) {
                             System.out.println("Invalid input, please enter a valid ID.");
-                            scanner.nextLine(); // Consume the invalid input
+                            scanner.nextLine();
                         }
                     }
 
@@ -73,7 +72,7 @@ public class MainApp {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input! Please enter a number.");
-                scanner.nextLine(); // Consume the invalid input
+                scanner.nextLine();
             }
         }
     }

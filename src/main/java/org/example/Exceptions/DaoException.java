@@ -13,5 +13,11 @@ public class DaoException extends SQLException
     {
         super(aMessage);
     }
+
+    public DaoException(String s, SQLException e) {
+    }
+
+    public DaoException(String s, ClassNotFoundException e) {
+    }
 }
 

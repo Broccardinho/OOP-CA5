@@ -1,50 +1,42 @@
 package org.example.database;
+
 import org.example.Exceptions.DaoException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    public static Connection getConnection() throws DaoException
-    {
+    public static Connection getConnection() throws DaoException {
         String driver = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/f1_2024";
         String username = "root";
         String password = "";
         Connection connection = null;
 
-        try
-        {
+        try {
+            // Load the driver
             Class.forName(driver);
+            System.out.println("MySQL JDBC Driver loaded successfully.");
+
+            // Establish the connection
             connection = DriverManager.getConnection(url, username, password);
-        }
-        catch (ClassNotFoundException e)
-        {
-            System.out.println("Failed to find driver class " + e.getMessage());
-            System.exit(1);
-        }
-        catch (SQLException e)
-        {
-            System.out.println("Connection failed " + e.getMessage());
-            System.exit(2);
+            System.out.println("Connection established successfully.");
+        } catch (ClassNotFoundException e) {
+            throw new DaoException("Failed to find driver class: " + e.getMessage(), e);
+        } catch (SQLException e) {
+            throw new DaoException("Connection failed: " + e.getMessage(), e);
         }
         return connection;
     }
 
-    public void freeConnection(Connection connection) throws DaoException
-    {
-        try
-        {
-            if (connection != null)
-            {
+    public void freeConnection(Connection connection) throws DaoException {
+        try {
+            if (connection != null) {
                 connection.close();
-                connection = null;
+                System.out.println("Connection closed successfully.");
             }
-        }
-        catch (SQLException e)
-        {
-            System.out.println("Failed to free connection: " + e.getMessage());
-            System.exit(1);
+        } catch (SQLException e) {
+            throw new DaoException("Failed to free connection: " + e.getMessage(), e);
         }
     }
 }
