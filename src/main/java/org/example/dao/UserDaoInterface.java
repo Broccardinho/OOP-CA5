@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface UserDaoInterface
 {
-    public List<User> findAllUsers() throws DaoException;
+    public List<Racer> findAllRacers() throws DaoException;
 
     public User findUserByUsernamePassword(String username, String password) throws DaoException;
 
