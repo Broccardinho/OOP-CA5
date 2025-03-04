@@ -8,7 +8,7 @@ import java.util.List;
 
 public class monzaPerformanceDAO {
     public void addRacer(Racer racer) {
-        String sql = "INSERT INTO Expenses (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonzaPerformance (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, racer.getName());
@@ -47,13 +47,16 @@ public class monzaPerformanceDAO {
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("team"),
-                        rs.getDouble("amount"),
-                        rs.getDate("dateIncurred")
+                        rs.getDouble("fastestLapTime"),
+                        rs.getInt("finalPosition"),
+                        rs.getInt("gridPosition"),
+                        rs.getInt("pointsEarned"),
+                        rs.getString("nationality")
                 ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return expenses;
+        return racers;
     }
 }
