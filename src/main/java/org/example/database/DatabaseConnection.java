@@ -1,5 +1,5 @@
 package org.example.database;
-import Exceptions.DaoException;
+import org.example.Exceptions.DaoException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
