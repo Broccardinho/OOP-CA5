@@ -1,4 +1,4 @@
-package database;
+package org.example.database;
 import Exceptions.DaoException;
 import java.sql.Connection;
 import java.sql.DriverManager;
