@@ -13,11 +13,9 @@ public class DatabaseConnection {
         Connection connection = null;
 
         try {
-            // Load the driver
             Class.forName(driver);
             System.out.println("MySQL JDBC Driver loaded successfully.");
 
-            // Establish the connection
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Connection established successfully.");
         } catch (ClassNotFoundException e) {
