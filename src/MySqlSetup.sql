@@ -4,8 +4,8 @@ USE F1_2024;
 
 -- Create MonzaPerformance Table
 CREATE TABLE IF NOT EXISTS MonzaPerformance (
-                                                id INT AUTO_INCREMENT PRIMARY KEY,
-                                                name VARCHAR(100) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
     team VARCHAR(100) NOT NULL,
     fastestLapTime FLOAT NOT NULL,
     finalPosition INT NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS MonzaPerformance (
     );
 
 -- Insert Sample Data
-INSERT INTO MonzaPerformance (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality) VALUE
+INSERT INTO MonzaPerformance (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality) VALUES
     ('Lewis Hamilton', 'Mercedes', 87.452, 1, 2, 25, 'British'),
     ('Max Verstappen', 'Red Bull', 87.123, 2, 1, 18, 'Dutch'),
     ('Charles Leclerc', 'Ferrari', 87.789, 3, 3, 15, 'Monegasque'),

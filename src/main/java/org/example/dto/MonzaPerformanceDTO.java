@@ -1,6 +1,6 @@
 package org.example.dto;
 
-public class monzaPerformanceDTO {
+public class MonzaPerformanceDTO {
     private int id;
     private String name;
     private String team;
@@ -10,7 +10,7 @@ public class monzaPerformanceDTO {
     private int pointsEarned;
     private String nationality;
 
-    public monzaPerformanceDTO(int id, String name, String team, double fastestLapTime, int finalPosition, int gridPosition, int pointsEarned, String nationality) {
+    public MonzaPerformanceDTO(int id, String name, String team, double fastestLapTime, int finalPosition, int gridPosition, int pointsEarned, String nationality) {
         this.id = id;
         this.name = name;
         this.team = team;
