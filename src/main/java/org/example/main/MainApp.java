@@ -1,7 +1,11 @@
 package org.example.main;
 
 import org.example.dao.MonzaPerformanceDAO;
+import org.example.dto.JsonConverter;
 import org.example.dto.MonzaPerformanceDTO;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.sql.SQLOutput;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
@@ -34,7 +38,9 @@ public class MainApp {
             System.out.println("4. Find Racer By ID");
             System.out.println("5. Update Racer");
             System.out.println("6. Find Racers By Team");
-            System.out.println("7. Exit");
+            System.out.println("7. Convert List of Entities to a JSON String ");
+            System.out.println("8. Convert a single Entity by Key into a JSON String");
+            System.out.println("14. Exit");
 
             try {
                 System.out.print("Enter choice: ");
@@ -195,17 +201,69 @@ public class MainApp {
                             teamRacers.forEach(System.out::println);
                         }
                     }
-                    case 7 -> {
+                    case 7 -> {  // Convert all the things to JSON
+                        System.out.println("\n═══════════════════════════════════════");
+                        System.out.println("       CONVERT ALL RACERS TO JSON");
+                        System.out.println("═══════════════════════════════════════");
+
+                        List<MonzaPerformanceDTO> allRacers = racerDAO.getAllRacers();
+                        if (!allRacers.isEmpty()) {
+                            String jsonOutput = JsonConverter.monzaPerformanceListToJsonString(allRacers);
+
+                            System.out.println("\n► JSON Output:");
+                            System.out.println("─────────────────────────────────────────");
+                            System.out.println(formatJson(jsonOutput));
+                            System.out.println("─────────────────────────────────────────");
+
+                        } else {
+                            System.out.println("\n⚠ No racers found in the database!");
+                        }
+                        System.out.println("\n═══════════════════════════════════════");
+                    }
+
+                    case 8 -> {  // Converting a single entity to JSON
+                        System.out.println("\n═══════════════════════════════════════");
+                        System.out.println("      CONVERT SINGLE RACER TO JSON");
+                        System.out.println("═══════════════════════════════════════");
+
+                        System.out.print("► Enter Racer ID: ");
+                        int id = scanner.nextInt();
+                        scanner.nextLine();
+
+                        MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
+                        if (racer != null) {
+                            String jsonOutput = JsonConverter.monzaPerformanceToJsonString(racer);
+
+                            System.out.println("\n► JSON Output for Racer ID " + id + ":");
+                            System.out.println("────────────────────────────────────────");
+                            System.out.println(formatJson(jsonOutput));
+                            System.out.println("────────────────────────────────────────");
+                        } else {
+                            System.out.println("\n No racer found with ID: " + id);
+                        }
+                        System.out.println("\n═══════════════════════════════════════");
+                    }
+                    case 14 -> {
                         System.out.println("Exiting...");
                         System.exit(0);
                     }
-
                     default -> System.out.println("Invalid choice! Please enter a number from the menu.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input! Please enter a number.");
                 scanner.nextLine();
             }
+        }
+    }
+    private static String formatJson(String jsonString) {
+        try {
+            if (jsonString.startsWith("[")) {
+                return new JSONArray(jsonString).toString(2);
+            } else {
+                return new JSONObject(jsonString).toString(2);
+            }
+        } catch (Exception e) {
+            return jsonString;
         }
     }
 }
