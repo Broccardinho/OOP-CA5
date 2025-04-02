@@ -1,11 +1,13 @@
 package org.example.main;
 
 import org.example.dao.MonzaPerformanceDAO;
+import org.example.dto.JsonConverter;
 import org.example.dto.MonzaPerformanceDTO;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
-
 
 public class MainApp {
 
@@ -34,7 +36,9 @@ public class MainApp {
             System.out.println("4. Find Racer By ID");
             System.out.println("5. Update Racer");
             System.out.println("6. Find Racers By Team");
-            System.out.println("7. Exit");
+            System.out.println("7. Convert List of Entities to a JSON String");
+            System.out.println("8. Convert a single Entity by Key into a JSON String");
+            System.out.println("14. Exit");
 
             try {
                 System.out.print("Enter choice: ");
@@ -58,19 +62,19 @@ public class MainApp {
                             int gridPosition = scanner.nextInt();
                             System.out.print("Enter racer's points earned: ");
                             int pointsEarned = scanner.nextInt();
-                            scanner.nextLine(); // Consume newline
+                            scanner.nextLine();
                             System.out.print("Enter racer's nationality: ");
                             String nationality = scanner.nextLine();
 
-                           MonzaPerformanceDTO newRacer = racerDAO.addRacer(
-                                   new MonzaPerformanceDTO(0, name, team, fastestLapTime,
-                                           finalPosition, gridPosition, pointsEarned, nationality));
+                            MonzaPerformanceDTO newRacer = racerDAO.addRacer(
+                                    new MonzaPerformanceDTO(0, name, team, fastestLapTime,
+                                            finalPosition, gridPosition, pointsEarned, nationality));
 
-                           if(newRacer != null) {
-                               System.out.println("Successfully added new Racer with ID: " + newRacer.getId());
-                           }else{
-                               System.out.println("Failed to add new Racer");
-                           }
+                            if(newRacer != null) {
+                                System.out.println("Successfully added new Racer with ID: " + newRacer.getId());
+                            } else {
+                                System.out.println("Failed to add new Racer");
+                            }
                         } catch (InputMismatchException e) {
                             System.out.println("Invalid input, ensure that you have given valid numbers only.");
                             scanner.nextLine();
@@ -84,7 +88,7 @@ public class MainApp {
                             scanner.nextLine();
                             if (racerDAO.deleteRacer(id)) {
                                 System.out.println("Successfully deleted");
-                            }else{
+                            } else {
                                 System.out.println("Failed to delete");
                             }
                         } catch (InputMismatchException e) {
@@ -92,6 +96,7 @@ public class MainApp {
                             scanner.nextLine();
                         }
                     }
+
                     case 4 -> {
                         System.out.print("Enter Racer ID: ");
                         int id = scanner.nextInt();
@@ -99,10 +104,11 @@ public class MainApp {
                         MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
                         if(racer != null) {
                             System.out.println("Found: " + racer);
-                        }else{
+                        } else {
                             System.out.println("No Racer with ID " + id + " found");
                         }
                     }
+
                     case 5 -> {
                         try {
                             System.out.print("Enter Racer ID to update: ");
@@ -139,11 +145,13 @@ public class MainApp {
                                     System.out.println("Invalid format! Use decimal numbers (e.g., 87.452)");
                                 }
                             }
+
                             int finalPosition = getIntegerInput(
                                     "New final position (current: " + existingRacer.getFinalPosition() + "): ",
                                     existingRacer.getFinalPosition(),
                                     scanner
                             );
+
                             int gridPosition = getIntegerInput(
                                     "New grid position (current: " + existingRacer.getGridPosition() + "): ",
                                     existingRacer.getGridPosition(),
@@ -160,7 +168,6 @@ public class MainApp {
                             String nationality = scanner.nextLine();
                             if (nationality.isEmpty()) nationality = existingRacer.getNationality();
 
-                            // Create updated DTO
                             MonzaPerformanceDTO updatedRacer = new MonzaPerformanceDTO(
                                     id,
                                     name,
@@ -172,17 +179,17 @@ public class MainApp {
                                     nationality
                             );
 
-                            // Execute update
                             if (racerDAO.updateRacer(id, updatedRacer)) {
-                                System.out.println("\nRacer updated successfully!");
+                                System.out.println("Racer updated successfully!");
                             } else {
-                                System.out.println("\nUpdate failed. Please check the ID and try again.");
+                                System.out.println("Update failed. Please check the ID and try again.");
                             }
-                        }catch(InputMismatchException e){
-                                System.out.println("Invalid input! Please enter a valid ID number.");
-                                scanner.nextLine();
+                        } catch(InputMismatchException e) {
+                            System.out.println("Invalid input! Please enter a valid ID number.");
+                            scanner.nextLine();
                         }
                     }
+
                     case 6 -> {
                         System.out.print("Enter team name to filter: ");
                         String teamFilter = scanner.nextLine();
@@ -191,11 +198,48 @@ public class MainApp {
                         if (teamRacers.isEmpty()) {
                             System.out.println("No racers found in team: " + teamFilter);
                         } else {
-                            System.out.println("\nRacers in team " + teamFilter + ":");
+                            System.out.println("Racers in team " + teamFilter + ":");
                             teamRacers.forEach(System.out::println);
                         }
                     }
+
                     case 7 -> {
+                        try {
+                            List<MonzaPerformanceDTO> allRacers = racerDAO.getAllRacers();
+                            if (allRacers.isEmpty()) {
+                                System.out.println("No racers found in the database");
+                            } else {
+                                String jsonOutput = JsonConverter.monzaPerformanceListToJsonString(allRacers);
+                                System.out.println("JSON Output:");
+                                System.out.println(formatJson(jsonOutput));
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
+                    }
+
+                    case 8 -> {
+                        try {
+                            System.out.print("Enter Racer ID: ");
+                            int id = scanner.nextInt();
+                            scanner.nextLine();
+                            MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
+                            if (racer == null) {
+                                System.out.println("No racer found with ID: " + id);
+                            } else {
+                                String jsonOutput = JsonConverter.monzaPerformanceToJsonString(racer);
+                                System.out.println("JSON Output:");
+                                System.out.println(formatJson(jsonOutput));
+                            }
+                        } catch (InputMismatchException e) {
+                            System.out.println("Invalid input! Please enter a number.");
+                            scanner.nextLine();
+                        } catch (Exception e) {
+                            System.out.println("Error: " + e.getMessage());
+                        }
+                    }
+
+                    case 14 -> {
                         System.out.println("Exiting...");
                         System.exit(0);
                     }
@@ -206,6 +250,18 @@ public class MainApp {
                 System.out.println("Invalid input! Please enter a number.");
                 scanner.nextLine();
             }
+        }
+    }
+
+    private static String formatJson(String jsonString) {
+        try {
+            if (jsonString.startsWith("[")) {
+                return new JSONArray(jsonString).toString(2);
+            } else {
+                return new JSONObject(jsonString).toString(2);
+            }
+        } catch (Exception e) {
+            return jsonString;
         }
     }
 }
