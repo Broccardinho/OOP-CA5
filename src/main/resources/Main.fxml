@@ -2,9 +2,36 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.main.MainController">
-   <children>
-      <ListView fx:id="racersList" layoutX="31.0" layoutY="67.0" prefHeight="200.0" prefWidth="200.0" />
-   </children>
-</AnchorPane>
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.main.MainController" spacing="10" alignment="CENTER">
+   <padding>
+      <Insets top="10" right="10" bottom="10" left="10"/>
+   </padding>
+
+   <Label text="F1 Racer Tracker" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+   <HBox spacing="10" alignment="CENTER_LEFT">
+      <Label text="Search by ID:"/>
+      <TextField fx:id="idInput" prefWidth="100"/>
+      <Button text="Search" onAction="#onFetchById"/>
+      <Button text="Show All" onAction="#showAllRacers"/>
+   </HBox>
+
+   <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
+
+   <TableView fx:id="racersTable" prefHeight="400" prefWidth="750">
+      <columns>
+         <TableColumn text="ID" prefWidth="50" fx:id="idColumn"/>
+         <TableColumn text="Name" prefWidth="150" fx:id="nameColumn"/>
+         <TableColumn text="Team" prefWidth="120" fx:id="teamColumn"/>
+         <TableColumn text="Nationality" prefWidth="100" fx:id="nationalityColumn"/>
+         <TableColumn text="Fastest Lap" prefWidth="80" fx:id="fastestLapColumn"/>
+         <TableColumn text="Grid Pos" prefWidth="60" fx:id="gridPosColumn"/>
+         <TableColumn text="Final Pos" prefWidth="60" fx:id="finalPosColumn"/>
+         <TableColumn text="Points" prefWidth="60" fx:id="pointsColumn"/>
+      </columns>
+   </TableView>
+</VBox>
