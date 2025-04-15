@@ -4,6 +4,8 @@ import javafx.fxml.*;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.io.*;
+import java.net.Socket;
 
 import java.io.IOException;
 

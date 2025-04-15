@@ -5,6 +5,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.dao.MonzaPerformanceDAO;
 import org.example.dto.MonzaPerformanceDTO;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.*;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainController {
@@ -63,21 +68,94 @@ public class MainController {
     private void onFetchById() {
         try {
             int id = Integer.parseInt(idInput.getText());
-            MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
-            if (racer != null) {
-                racersTable.getItems().setAll(racer);
-                statusLabel.setText("Racer found!");
-            } else {
-                statusLabel.setText("No racer found with ID: " + id);
+
+            try (Socket socket = new Socket("localhost", 3306);
+                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+                out.write("GET_BY_ID:" + id);
+                out.newLine();
+                out.flush();
+
+                String json = in.readLine();
+                if (json != null && !json.equals("null")) {
+                    MonzaPerformanceDTO racer = parseJsonToDTO(json);
+                    racersTable.getItems().setAll(racer);
+                    statusLabel.setText("Racer found via server!");
+                } else {
+                    statusLabel.setText("No racer found with ID: " + id);
+                }
+
+            } catch (IOException e) {
+                statusLabel.setText("Server error: " + e.getMessage());
             }
+
         } catch (NumberFormatException e) {
             statusLabel.setText("Invalid ID! Please enter a number.");
         }
     }
 
+    private MonzaPerformanceDTO parseJsonToDTO(String json) {
+        JSONObject obj = new JSONObject(json);
+
+        return new MonzaPerformanceDTO(
+                obj.getInt("id"),
+                obj.getString("name"),
+                obj.getString("team"),
+                obj.getDouble("fastestLapTime"),
+                obj.getInt("finalPosition"),
+                obj.getInt("gridPosition"),
+                obj.getInt("pointsEarned"),
+                obj.getString("nationality")
+        );
+    }
+
+
+
     @FXML
     private void showAllRacers() {
-        refreshTable();
-        statusLabel.setText("Showing all racers");
+        try (Socket socket = new Socket("localhost", 3306);
+             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            out.write("GET_ALL");
+            out.newLine();
+            out.flush();
+
+            String jsonArray = in.readLine();
+            if (jsonArray != null && jsonArray.startsWith("[")) {
+                List<MonzaPerformanceDTO> racers = parseJsonArray(jsonArray);
+                racersTable.getItems().setAll(racers);
+                statusLabel.setText("All racers fetched from server.");
+            } else {
+                statusLabel.setText("Failed to fetch racers.");
+            }
+
+        } catch (IOException e) {
+            statusLabel.setText("Error: " + e.getMessage());
+        }
+    }
+
+    private List<MonzaPerformanceDTO> parseJsonArray(String json) {
+        List<MonzaPerformanceDTO> racers = new ArrayList<>();
+        JSONArray array = new JSONArray(json);
+
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject obj = array.getJSONObject(i);
+
+            MonzaPerformanceDTO racer = new MonzaPerformanceDTO(
+                    obj.getInt("id"),
+                    obj.getString("name"),
+                    obj.getString("team"),
+                    obj.getDouble("fastestLapTime"),
+                    obj.getInt("finalPosition"),
+                    obj.getInt("gridPosition"),
+                    obj.getInt("pointsEarned"),
+                    obj.getString("nationality")
+            );
+            racers.add(racer);
+        }
+
+        return racers;
     }
 }
