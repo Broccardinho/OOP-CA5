@@ -2,6 +2,9 @@ package org.example.database;
 
 import org.example.dao.MonzaPerformanceDAO;
 import org.example.dto.MonzaPerformanceDTO;
+import org.example.Exceptions.DaoException;
+import org.example.dto.JsonConverter;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -9,90 +12,115 @@ import java.net.Socket;
 import java.util.List;
 
 public class Server {
+    private static final int PORT = 8888;
+    private static boolean running = true;
+
     public static void main(String[] args) {
-        int port = 3306;
-        MonzaPerformanceDAO dao = new MonzaPerformanceDAO();
+        System.out.println("Starting F1 Racer Tracker Server on port " + PORT);
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started on port " + port);
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server started. Waiting for connections...");
 
-            while (true) {
+            while (running) {
                 try (Socket clientSocket = serverSocket.accept();
                      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                     BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()))) {
+                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
 
                     System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-                    String input = in.readLine();
-                    System.out.println("Received command: " + input);
-
-                    if (input.startsWith("GET_BY_ID")) {
-                        String[] parts = input.split(":");
-                        if (parts.length == 2) {
-                            int id = Integer.parseInt(parts[1]);
-                            MonzaPerformanceDTO racer = dao.getRacerById(id);
-                            if (racer != null) {
-                                String json = dtoToJson(racer);
-                                out.write(json);
-                            } else {
-                                out.write("null");
-                            }
-                            out.newLine();
-                            out.flush();
-                        }
-                    } else if (input.equals("GET_ALL")) {
-                        List<MonzaPerformanceDTO> racers = dao.getAllRacers();
-                        String jsonArray = listToJsonArray(racers);
-
-                        System.out.println("Sending JSON array: " + jsonArray); // <-- ADD THIS
-
-                        out.write(jsonArray);
-                        out.newLine();
-                        out.flush();
-                    }
-                    else {
-                        out.write("Invalid command");
-                        out.newLine();
-                        out.flush();
-                    }
+                    handleClientRequest(in, out);
 
                 } catch (IOException e) {
-                    System.err.println("Error handling client: " + e.getMessage());
+                    System.err.println("Client connection error: " + e.getMessage());
                 }
             }
-
         } catch (IOException e) {
-            System.err.println("Could not start server on port " + port);
-            e.printStackTrace();
+            System.err.println("Could not start server: " + e.getMessage());
+        } finally {
+            System.out.println("Server shutting down");
         }
     }
 
-    private static String dtoToJson(MonzaPerformanceDTO dto) {
-        return "{" +
-                "\"id\":" + dto.getId() + "," +
-                "\"name\":\"" + dto.getName() + "\"," +
-                "\"team\":\"" + dto.getTeam() + "\"," +
-                "\"fastestLapTime\":" + dto.getFastestLapTime() + "," +
-                "\"finalPosition\":" + dto.getFinalPosition() + "," +
-                "\"gridPosition\":" + dto.getGridPosition() + "," +
-                "\"pointsEarned\":" + dto.getPointsEarned() + "," +
-                "\"nationality\":\"" + dto.getNationality() + "\"" +
-                "}";
-    }
-
-    private static String listToJsonArray(List<MonzaPerformanceDTO> list) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-
-        for (int i = 0; i < list.size(); i++) {
-            MonzaPerformanceDTO dto = list.get(i);
-            sb.append(dtoToJson(dto));
-            if (i < list.size() - 1) {
-                sb.append(",");
+    private static void handleClientRequest(BufferedReader in, PrintWriter out) {
+        try {
+            String command = in.readLine();
+            if (command == null || command.trim().isEmpty()) {
+                sendJsonResponse(out, "error", "Empty command received", null);
+                return;
             }
-        }
 
-        sb.append("]");
-        return sb.toString();
+            command = command.trim();
+            System.out.println("[SERVER] Received command: " + command);
+
+            try {
+                if (command.startsWith("GET_RACER_BY_ID")) {
+                    handleGetRacerById(command, out);
+                } else if (command.equals("GET_ALL_RACERS")) {
+                    handleGetAllRacers(out);
+                } else {
+                    sendJsonResponse(out, "error", "Unknown command: " + command, null);
+                }
+            } catch (Exception e) {
+                sendJsonResponse(out, "error", "Server error: " + e.getMessage(), null);
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            System.err.println("[SERVER] Communication error: " + e.getMessage());
+        }
     }
+
+    private static void sendJsonResponse(PrintWriter out, String status, String message, Object data) {
+        JSONObject response = new JSONObject();
+        response.put("status", status);
+        if (message != null) response.put("message", message);
+        if (data != null) response.put("data", data);
+
+        String jsonResponse = response.toString();
+        System.out.println("[SERVER] Sending response: " + jsonResponse);
+        out.println(jsonResponse);
+        out.flush(); // Ensure response is sent immediately
+    }
+
+    private static void sendError(PrintWriter out, String message) {
+        String errorJson = JsonConverter.createErrorResponse(message);
+        System.err.println("Sending error: " + errorJson);
+        out.println(errorJson);
+    }
+
+
+    private static void handleGetRacerById(String command, PrintWriter out) {
+        try {
+            String[] parts = command.split(" ");
+            if (parts.length != 2) {
+                out.println(JsonConverter.createErrorResponse("Invalid command format"));
+                return;
+            }
+
+            int id = Integer.parseInt(parts[1]);
+            MonzaPerformanceDAO dao = new MonzaPerformanceDAO();
+            MonzaPerformanceDTO racer = dao.getRacerById(id);
+
+            if (racer != null) {
+                out.println(JsonConverter.createSuccessResponse(racer));
+                System.out.println("Sent racer data for ID: " + id);
+            } else {
+                out.println(JsonConverter.createErrorResponse("Racer not found with ID: " + id));
+            }
+        } catch (NumberFormatException e) {
+            out.println(JsonConverter.createErrorResponse("Invalid ID format"));
+        }
+    }
+
+    private static void handleGetAllRacers(PrintWriter out) {
+        MonzaPerformanceDAO dao = new MonzaPerformanceDAO();
+        List<MonzaPerformanceDTO> racers = dao.getAllRacers();
+
+        out.println(JsonConverter.createSuccessResponse(racers));
+        System.out.println("Sent all racers data (" + racers.size() + " records)");
+    }
+
+//    private static void handleShutdown(PrintWriter out) {
+//        out.println(JsonConverter.createSuccessResponse("Server shutting down"));
+//        System.out.println("Received shutdown command");
+//        running = false;
+//    }
 }

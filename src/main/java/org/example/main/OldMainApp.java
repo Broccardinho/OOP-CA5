@@ -209,9 +209,9 @@ public class OldMainApp {
                             if (allRacers.isEmpty()) {
                                 System.out.println("No racers found in the database");
                             } else {
-                                String jsonOutput = JsonConverter.monzaPerformanceListToJsonString(allRacers);
+//                                String jsonOutput = JsonConverter.monzaPerformanceListToJsonString(allRacers);
                                 System.out.println("JSON Output:");
-                                System.out.println(formatJson(jsonOutput));
+//                                System.out.println(formatJson(jsonOutput));
                             }
                         } catch (Exception e) {
                             System.out.println("Error: " + e.getMessage());
@@ -227,9 +227,9 @@ public class OldMainApp {
                             if (racer == null) {
                                 System.out.println("No racer found with ID: " + id);
                             } else {
-                                String jsonOutput = JsonConverter.monzaPerformanceToJsonString(racer);
+//                                String jsonOutput = JsonConverter.monzaPerformanceToJsonString(racer);
                                 System.out.println("JSON Output:");
-                                System.out.println(formatJson(jsonOutput));
+//                                System.out.println(formatJson(jsonOutput));
                             }
                         } catch (InputMismatchException e) {
                             System.out.println("Invalid input! Please enter a number.");
