@@ -126,13 +126,9 @@ public class MainController {
     }
 
     // Clean up resources when controller is no longer needed
-    public void shutdown() {
-        try {
-            if (f1Client != null) {
-                f1Client.disconnect();
-            }
-        } catch (IOException e) {
-            System.err.println("Error disconnecting from server: " + e.getMessage());
+    public void shutdown() throws IOException {
+        if (f1Client != null) {
+            f1Client.disconnect();
         }
     }
     @FXML

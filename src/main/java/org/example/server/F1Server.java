@@ -61,6 +61,11 @@ public class F1Server {
                                     JsonConverter.monzaPerformanceToJsonString(racer) :
                                     "ERROR: Racer not found";
                             break;
+                            case "DELETE_RACER":
+                                 id = Integer.parseInt(parts[1]);
+                                 dao.deleteRacer(id);
+                                 response = "DELETED";
+                                 break;
                         default:
                             response = "ERROR: Unknown command";
                     }

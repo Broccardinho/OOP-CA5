@@ -45,10 +45,52 @@ public class F1Client {
         return JsonConverter.jsonStringToMonzaPerformance(response);
     }
     public boolean deleteRacer(int id) throws IOException {
-        // Implement your actual server communication here
-        // This is just a placeholder implementation
-        out.println("DELETE " + id);
-        String response = in.readLine();
-        return "DELETED".equals(response);
+        // Validate input
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid racer ID");
+        }
+
+        // Check if we need to reconnect
+        if (socket == null || socket.isClosed() || !socket.isConnected()) {
+            connect(); // Re-establish connection if needed
+        }
+
+        try {
+            // Send delete command
+            out.println("DELETE_RACER " + id);
+            out.flush(); // Ensure command is sent immediately
+
+            // Set read timeout (5 seconds)
+            socket.setSoTimeout(5000);
+
+            // Read server response
+            String response = in.readLine();
+
+            if (response == null) {
+                throw new IOException("Server disconnected during operation");
+            }
+
+            // Handle different response cases
+            if (response.startsWith("ERROR:")) {
+                String errorMsg = response.substring(6).trim();
+                if (errorMsg.contains("NOT_FOUND")) {
+                    return false; // Racer not found is not an error condition
+                }
+                throw new IOException("Server error: " + errorMsg);
+            }
+
+            return "DELETED".equals(response) || "OK".equals(response);
+
+        } catch (SocketTimeoutException e) {
+            throw new IOException("Server response timeout", e);
+        } catch (IOException e) {
+            // Clean up broken connection
+            try {
+                disconnect();
+            } catch (IOException ex) {
+                e.addSuppressed(ex);
+            }
+            throw new IOException("Failed to delete racer: " + e.getMessage(), e);
+        }
     }
 }
