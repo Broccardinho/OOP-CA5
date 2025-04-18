@@ -18,6 +18,7 @@
       <TextField fx:id="idInput" prefWidth="100"/>
       <Button text="Search" onAction="#onFetchById"/>
       <Button text="Show All" onAction="#showAllRacers"/>
+      <Button text="Delete" onAction="#onDeleteById" style="-fx-background-color: #ff4444; -fx-text-fill: white;"/>
    </HBox>
 
    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
