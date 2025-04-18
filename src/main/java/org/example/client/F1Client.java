@@ -58,4 +58,16 @@ public class F1Client {
         }
         return "SUCCESS".equals(response);
     }
+
+    public boolean addRacer(MonzaPerformanceDTO racer) throws IOException {
+        out.println("ADD_RACER " + JsonConverter.monzaPerformanceToJsonString(racer));
+        String response = in.readLine();
+        if (response == null) {
+            throw new IOException("No response from server");
+        }
+        if (response.startsWith("ERROR")) {
+            throw new IOException(response.substring(6)); // Skip "ERROR: " prefix
+        }
+        return "SUCCESS".equals(response);
+    }
 }

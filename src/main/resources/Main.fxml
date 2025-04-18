@@ -20,6 +20,18 @@
       <Button text="Show All" onAction="#showAllRacers"/>
    </HBox>
 
+   <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+      <Label text="Add New Racer:"/>
+      <TextField fx:id="newName" promptText="Name" prefWidth="120"/>
+      <TextField fx:id="newTeam" promptText="Team" prefWidth="100"/>
+      <TextField fx:id="newNationality" promptText="Nationality" prefWidth="100"/>
+      <TextField fx:id="newFastestLap" promptText="Fastest Lap" prefWidth="80"/>
+      <TextField fx:id="newGridPos" promptText="Grid Pos" prefWidth="60"/>
+      <TextField fx:id="newFinalPos" promptText="Final Pos" prefWidth="60"/>
+      <TextField fx:id="newPoints" promptText="Points" prefWidth="60"/>
+      <Button text="Add" onAction="#onAddRacer"/>
+   </HBox>
+
    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
 
    <TableView fx:id="racersTable" prefHeight="400" prefWidth="750">

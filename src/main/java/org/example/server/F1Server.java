@@ -75,6 +75,20 @@ public class F1Server {
                                 e.printStackTrace();
                             }
                             break;
+                        case "ADD_RACER":
+                            try {
+                                if (parts.length < 2) {
+                                    response = "ERROR: Missing racer data";
+                                    break;
+                                }
+                                MonzaPerformanceDTO newRacer = JsonConverter.jsonStringToMonzaPerformance(parts[1]);
+                                MonzaPerformanceDTO addedRacer = dao.addRacer(newRacer);
+                                response = addedRacer != null ? "SUCCESS" : "ERROR: Failed to add racer";
+                            } catch (Exception e) {
+                                response = "ERROR: " + e.getMessage();
+                                e.printStackTrace();
+                            }
+                            break;
                         default:
                             response = "ERROR: Unknown command";
                     }
