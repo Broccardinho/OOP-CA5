@@ -19,6 +19,7 @@ public class MainController {
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> finalPosColumn;
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> pointsColumn;
 
+    @FXML private TextField deleteIdInput;
     @FXML private TextField idInput;
     @FXML private Label statusLabel;
 
@@ -132,6 +133,41 @@ public class MainController {
             }
         } catch (IOException e) {
             System.err.println("Error disconnecting from server: " + e.getMessage());
+        }
+    }
+    @FXML
+    private void onDeleteRacer() {
+        String inputText = deleteIdInput.getText().trim();
+        if (inputText.isEmpty()) {
+            statusLabel.setText("Please enter an ID to delete");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(inputText);
+
+            // Confirm deletion
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Delete Racer");
+            alert.setContentText("Are you sure you want to delete racer with ID: " + id + "?");
+
+            if (alert.showAndWait().get() == ButtonType.OK) {
+                // Call the server to delete
+                boolean deleted = f1Client.deleteRacer(id);
+
+                if (deleted) {
+                    statusLabel.setText("Successfully deleted racer with ID: " + id);
+                    refreshTable(); // Refresh to show updated list
+                } else {
+                    statusLabel.setText("No racer found with ID: " + id);
+                }
+            }
+        } catch (NumberFormatException e) {
+            statusLabel.setText("Invalid ID! Please enter a number.");
+        } catch (IOException e) {
+            statusLabel.setText("Error deleting racer: " + e.getMessage());
+            showErrorAlert("Delete Error", "Failed to delete racer", e.getMessage());
         }
     }
 }

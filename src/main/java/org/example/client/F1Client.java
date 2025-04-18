@@ -44,4 +44,11 @@ public class F1Client {
         }
         return JsonConverter.jsonStringToMonzaPerformance(response);
     }
+    public boolean deleteRacer(int id) throws IOException {
+        // Implement your actual server communication here
+        // This is just a placeholder implementation
+        out.println("DELETE " + id);
+        String response = in.readLine();
+        return "DELETED".equals(response);
+    }
 }

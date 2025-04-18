@@ -20,6 +20,12 @@
       <Button text="Show All" onAction="#showAllRacers"/>
    </HBox>
 
+   <HBox spacing="10" alignment="CENTER_LEFT">
+      <Label text="Delete racer by ID:"/>
+      <TextField fx:id="deleteIdInput" prefWidth="100"/>
+      <Button text="Delete" onAction="#onDeleteRacer" style="-fx-background-color: #ff4444; -fx-text-fill: white;"/>
+   </HBox>
+
    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
 
    <TableView fx:id="racersTable" prefHeight="400" prefWidth="750">
