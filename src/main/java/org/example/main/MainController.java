@@ -3,8 +3,9 @@ package org.example.main;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.example.dao.MonzaPerformanceDAO;
+import org.example.client.F1Client;
 import org.example.dto.MonzaPerformanceDTO;
+import java.io.IOException;
 import java.util.List;
 
 public class MainController {
@@ -20,11 +21,22 @@ public class MainController {
 
     @FXML private TextField idInput;
     @FXML private Label statusLabel;
-    private MonzaPerformanceDAO racerDAO = new MonzaPerformanceDAO();
+
+    private F1Client f1Client;
 
     @FXML
     private void initialize() {
         // Set up the table columns
+        setupTableColumns();
+
+        // Connect to server
+        connectToServer();
+
+        // Load initial data
+        refreshTable();
+    }
+
+    private void setupTableColumns() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         teamColumn.setCellValueFactory(new PropertyValueFactory<>("team"));
@@ -48,36 +60,78 @@ public class MainController {
                 }
             };
         });
-
-        refreshTable();
     }
 
-    //all racers is the default, so refreshing it shows all of them
+    private void connectToServer() {
+        try {
+            f1Client = new F1Client("localhost", 8888);
+            f1Client.connect();
+            statusLabel.setText("Connected to server");
+        } catch (IOException e) {
+            statusLabel.setText("Error connecting to server: " + e.getMessage());
+            showErrorAlert("Connection Error", "Failed to connect to server", e.getMessage());
+        }
+    }
+
     private void refreshTable() {
-        List<MonzaPerformanceDTO> racers = racerDAO.getAllRacers();
-        racersTable.getItems().setAll(racers);
+        try {
+            List<MonzaPerformanceDTO> racers = f1Client.getAllRacers();
+            racersTable.getItems().setAll(racers);
+            statusLabel.setText("Loaded " + racers.size() + " racers from server");
+        } catch (IOException e) {
+            statusLabel.setText("Error loading data: " + e.getMessage());
+            showErrorAlert("Data Load Error", "Failed to load racers", e.getMessage());
+        }
     }
 
-    //the status displaying/error check display
     @FXML
     private void onFetchById() {
+        String inputText = idInput.getText().trim();
+        if (inputText.isEmpty()) {
+            statusLabel.setText("Please enter an ID");
+            return;
+        }
+
         try {
-            int id = Integer.parseInt(idInput.getText());
-            MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
+            int id = Integer.parseInt(inputText);
+            MonzaPerformanceDTO racer = f1Client.getRacerById(id);
+
             if (racer != null) {
                 racersTable.getItems().setAll(racer);
-                statusLabel.setText("Racer found!");
+                statusLabel.setText("Found racer: " + racer.getName());
             } else {
                 statusLabel.setText("No racer found with ID: " + id);
+                racersTable.getItems().clear();
             }
         } catch (NumberFormatException e) {
             statusLabel.setText("Invalid ID! Please enter a number.");
+        } catch (IOException e) {
+            statusLabel.setText("Error fetching racer: " + e.getMessage());
+            showErrorAlert("Fetch Error", "Failed to fetch racer", e.getMessage());
         }
     }
 
     @FXML
     private void showAllRacers() {
         refreshTable();
-        statusLabel.setText("Showing all racers");
+    }
+
+    private void showErrorAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    // Clean up resources when controller is no longer needed
+    public void shutdown() {
+        try {
+            if (f1Client != null) {
+                f1Client.disconnect();
+            }
+        } catch (IOException e) {
+            System.err.println("Error disconnecting from server: " + e.getMessage());
+        }
     }
 }
