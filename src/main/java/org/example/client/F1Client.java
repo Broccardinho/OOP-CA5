@@ -44,4 +44,18 @@ public class F1Client {
         }
         return JsonConverter.jsonStringToMonzaPerformance(response);
     }
+
+    public boolean deleteRacer(int id) throws IOException {
+        // Send command with proper formatting (no extra spaces)
+        out.println("DELETE_RACER " + id);
+        String response = in.readLine();
+
+        if (response == null) {
+            throw new IOException("No response from server");
+        }
+        if (response.startsWith("ERROR")) {
+            throw new IOException(response.substring(6)); // Skip "ERROR: " prefix
+        }
+        return "SUCCESS".equals(response);
+    }
 }

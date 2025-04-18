@@ -76,21 +76,17 @@ public class MonzaPerformanceDAO {
 
     public boolean deleteRacer(int id) {
         String sql = "DELETE FROM MonzaPerformance WHERE id = ?";
-        int rowsDeleted = 0;
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
-            rowsDeleted = stmt.executeUpdate();
-            if (rowsDeleted > 0) {
-                System.out.println("Racer deleted successfully.");
-            } else {
-                System.out.println("No racer found with ID: " + id);
-            }
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
         } catch (SQLException e) {
             System.out.println("Error deleting racer: " + e.getMessage());
+            return false;
         }
-        return rowsDeleted > 0;
     }
+
 
     public List<MonzaPerformanceDTO> getAllRacers() {
         List<MonzaPerformanceDTO> racers = new ArrayList<>();

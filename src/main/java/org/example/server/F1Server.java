@@ -61,6 +61,20 @@ public class F1Server {
                                     JsonConverter.monzaPerformanceToJsonString(racer) :
                                     "ERROR: Racer not found";
                             break;
+                        case "DELETE_RACER":
+                            try {
+                                // Trim any whitespace and parse ID
+                                int deleteId = Integer.parseInt(parts[1].trim());
+                                System.out.println("Attempting to delete racer with ID: " + deleteId);
+                                boolean deleted = dao.deleteRacer(deleteId);
+                                response = deleted ? "SUCCESS" : "ERROR: Racer not found";
+                            } catch (NumberFormatException e) {
+                                response = "ERROR: Invalid ID format";
+                            } catch (Exception e) {
+                                response = "ERROR: " + e.getMessage();
+                                e.printStackTrace();
+                            }
+                            break;
                         default:
                             response = "ERROR: Unknown command";
                     }

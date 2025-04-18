@@ -7,6 +7,9 @@ import org.example.client.F1Client;
 import org.example.dto.MonzaPerformanceDTO;
 import java.io.IOException;
 import java.util.List;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 
 public class MainController {
     @FXML private TableView<MonzaPerformanceDTO> racersTable;
@@ -28,6 +31,7 @@ public class MainController {
     private void initialize() {
         // Set up the table columns
         setupTableColumns();
+        addDeleteButtonColumn();
 
         // Connect to server
         connectToServer();
@@ -133,5 +137,43 @@ public class MainController {
         } catch (IOException e) {
             System.err.println("Error disconnecting from server: " + e.getMessage());
         }
+    }
+
+    private void addDeleteButtonColumn() {
+        TableColumn<MonzaPerformanceDTO, Void> deleteColumn = new TableColumn<>("Action");
+
+        deleteColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button deleteButton = new Button("Delete");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    MonzaPerformanceDTO racer = getTableView().getItems().get(getIndex());
+                    try {
+                        boolean success = f1Client.deleteRacer(racer.getId());
+                        if (success) {
+                            statusLabel.setText("Successfully deleted racer: " + racer.getName());
+                            refreshTable();
+                        } else {
+                            statusLabel.setText("Failed to delete racer: " + racer.getName());
+                        }
+                    } catch (IOException e) {
+                        statusLabel.setText("Error deleting racer: " + e.getMessage());
+                        showErrorAlert("Delete Error", "Failed to delete racer", e.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
+        racersTable.getColumns().add(deleteColumn);
     }
 }
