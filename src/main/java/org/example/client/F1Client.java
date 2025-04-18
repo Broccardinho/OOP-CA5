@@ -93,4 +93,32 @@ public class F1Client {
             throw new IOException("Failed to delete racer: " + e.getMessage(), e);
         }
     }
+
+    public boolean addRacer(MonzaPerformanceDTO racer) throws IOException {
+        try {
+            // Convert to JSON
+            String racerJson = JsonConverter.monzaPerformanceToJsonString(racer);
+
+            // Send command
+            out.println("ADD_RACER " + racerJson);
+            out.flush();
+
+            // Read response
+            String response = in.readLine();
+
+            if (response == null) {
+                throw new IOException("No response from server");
+            }
+
+            if (response.startsWith("ERROR:")) {
+                throw new IOException(response.substring(6).trim());
+            }
+
+            // Return true if we got back valid JSON (success)
+            JsonConverter.jsonStringToMonzaPerformance(response);
+            return true;
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Invalid server response: " + e.getMessage());
+        }
+    }
 }

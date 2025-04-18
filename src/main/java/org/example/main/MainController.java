@@ -19,6 +19,14 @@ public class MainController {
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> finalPosColumn;
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> pointsColumn;
 
+    @FXML private TextField addName;
+    @FXML private TextField addTeam;
+    @FXML private TextField addNationality;
+    @FXML private TextField addFastestLap;
+    @FXML private TextField addGridPos;
+    @FXML private TextField addFinalPos;
+    @FXML private TextField addPoints;
+
     @FXML private TextField deleteIdInput;
     @FXML private TextField idInput;
     @FXML private Label statusLabel;
@@ -165,5 +173,71 @@ public class MainController {
             statusLabel.setText("Error deleting racer: " + e.getMessage());
             showErrorAlert("Delete Error", "Failed to delete racer", e.getMessage());
         }
+    }
+
+    @FXML
+    private void onAddRacer() {
+        try {
+            // Validate inputs
+            if (addName.getText().isEmpty()) {
+                statusLabel.setText("Name cannot be empty");
+                return;
+            }
+
+            // Create DTO (let parseLapTime throw IllegalArgumentException)
+            MonzaPerformanceDTO newRacer = new MonzaPerformanceDTO(
+                    0, // Temporary ID
+                    addName.getText(),
+                    addTeam.getText(),
+                    parseLapTime(addFastestLap.getText()),
+                    Integer.parseInt(addFinalPos.getText()),
+                    Integer.parseInt(addGridPos.getText()),
+                    Integer.parseInt(addPoints.getText()),
+                    addNationality.getText()
+            );
+
+            // Send to server
+            if (f1Client.addRacer(newRacer)) {
+                statusLabel.setText("Racer added successfully!");
+                refreshTable();
+                clearAddForm();
+            } else {
+                statusLabel.setText("Failed to add racer (server error)");
+            }
+        } catch (NumberFormatException e) {
+            statusLabel.setText("Invalid number in positions/points");
+        } catch (IllegalArgumentException e) {
+            statusLabel.setText(e.getMessage());
+        } catch (IOException e) {
+            statusLabel.setText("Error: " + e.getMessage());
+        }
+    }
+
+    private double parseLapTime(String lapTime) throws IllegalArgumentException {
+        try {
+            // Accept either MM:SS.sss or SS.sss format
+            if (lapTime.contains(":")) {
+                String[] parts = lapTime.split(":");
+                if (parts.length != 2) throw new IllegalArgumentException();
+                int minutes = Integer.parseInt(parts[0]);
+                double seconds = Double.parseDouble(parts[1]);
+                return minutes * 60 + seconds;
+            } else {
+                // Assume it's already in seconds
+                return Double.parseDouble(lapTime);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Lap time must be in SS.sss format");
+        }
+    }
+
+    private void clearAddForm() {
+        addName.clear();
+        addTeam.clear();
+        addNationality.clear();
+        addFastestLap.clear();
+        addGridPos.clear();
+        addFinalPos.clear();
+        addPoints.clear();
     }
 }

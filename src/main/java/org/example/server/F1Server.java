@@ -5,7 +5,8 @@ import org.example.dto.JsonConverter;
 import org.example.dto.MonzaPerformanceDTO;
 import java.io.*;
         import java.net.*;
-        import java.util.List;
+import java.sql.SQLException;
+import java.util.List;
 
 public class F1Server {
     private static final int PORT = 8888;
@@ -66,6 +67,30 @@ public class F1Server {
                                  dao.deleteRacer(id);
                                  response = "DELETED";
                                  break;
+                        // Add this case to your server's command switch statement
+                        case "ADD_RACER":
+                            try {
+                                MonzaPerformanceDTO newRacer = JsonConverter.jsonStringToMonzaPerformance(parts[1]);
+
+                                // Additional validation
+                                if (newRacer.getName() == null || newRacer.getName().trim().isEmpty()) {
+                                    response = "ERROR: Racer name cannot be empty";
+                                    break;
+                                }
+
+                                MonzaPerformanceDTO addedRacer = dao.addRacer(newRacer);
+
+                                if (addedRacer != null) {
+                                    response = JsonConverter.monzaPerformanceToJsonString(addedRacer);
+                                } else {
+                                    response = "ERROR: Database failed to add racer (check constraints)";
+                                }
+                            } catch (IllegalArgumentException e) {
+                                response = "ERROR: Invalid data format - " + e.getMessage();
+                            } catch (Exception e) {
+                                response = "ERROR: Unexpected error - " + e.getMessage();
+                            }
+                            break;
                         default:
                             response = "ERROR: Unknown command";
                     }

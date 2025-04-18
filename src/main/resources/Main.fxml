@@ -26,6 +26,54 @@
       <Button text="Delete" onAction="#onDeleteRacer" style="-fx-background-color: #ff4444; -fx-text-fill: white;"/>
    </HBox>
 
+   <Label text="Add New Racer:" style="-fx-font-weight: bold;"/>
+
+   <!-- Horizontal form layout -->
+   <HBox spacing="20" alignment="TOP_LEFT">
+      <!-- Column 1 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Name:" minWidth="80"/>
+            <TextField fx:id="addName" prefWidth="150"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Team:" minWidth="80"/>
+            <TextField fx:id="addTeam" prefWidth="150"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Nationality:" minWidth="80"/>
+            <TextField fx:id="addNationality" prefWidth="150"/>
+         </HBox>
+      </VBox>
+
+      <!-- Column 2 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Fastest Lap:" minWidth="80"/>
+            <TextField fx:id="addFastestLap" prefWidth="80"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Grid Pos:" minWidth="80"/>
+            <TextField fx:id="addGridPos" prefWidth="50"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Final Pos:" minWidth="80"/>
+            <TextField fx:id="addFinalPos" prefWidth="50"/>
+         </HBox>
+      </VBox>
+
+      <!-- Column 3 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Points:" minWidth="80"/>
+            <TextField fx:id="addPoints" prefWidth="50"/>
+         </HBox>
+         <Button text="Add Racer" onAction="#onAddRacer"
+                 style="-fx-background-color: #4CAF50; -fx-text-fill: white;"
+                 HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+      </VBox>
+   </HBox>
+
    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
 
    <TableView fx:id="racersTable" prefHeight="400" prefWidth="750">
