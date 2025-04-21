@@ -65,12 +65,15 @@ public class OldMainApp {
                             scanner.nextLine();
                             System.out.print("Enter racer's nationality: ");
                             String nationality = scanner.nextLine();
+                            System.out.print("Enter racer's image link (e.g., /images/racer.jpg, leave blank for none): ");
+                            String imageLink = scanner.nextLine(); // Prompt for imageLink
+                            if (imageLink.isEmpty()) imageLink = null; // Allow null if database permits
 
                             MonzaPerformanceDTO newRacer = racerDAO.addRacer(
                                     new MonzaPerformanceDTO(0, name, team, fastestLapTime,
-                                            finalPosition, gridPosition, pointsEarned, nationality));
+                                            finalPosition, gridPosition, pointsEarned, nationality, imageLink));
 
-                            if(newRacer != null) {
+                            if (newRacer != null) {
                                 System.out.println("Successfully added new Racer with ID: " + newRacer.getId());
                             } else {
                                 System.out.println("Failed to add new Racer");
@@ -102,7 +105,7 @@ public class OldMainApp {
                         int id = scanner.nextInt();
                         scanner.nextLine();
                         MonzaPerformanceDTO racer = racerDAO.getRacerById(id);
-                        if(racer != null) {
+                        if (racer != null) {
                             System.out.println("Found: " + racer);
                         } else {
                             System.out.println("No Racer with ID " + id + " found");
@@ -148,43 +151,33 @@ public class OldMainApp {
 
                             int finalPosition = getIntegerInput(
                                     "New final position (current: " + existingRacer.getFinalPosition() + "): ",
-                                    existingRacer.getFinalPosition(),
-                                    scanner
-                            );
+                                    existingRacer.getFinalPosition(), scanner);
 
                             int gridPosition = getIntegerInput(
                                     "New grid position (current: " + existingRacer.getGridPosition() + "): ",
-                                    existingRacer.getGridPosition(),
-                                    scanner
-                            );
+                                    existingRacer.getGridPosition(), scanner);
 
                             int pointsEarned = getIntegerInput(
                                     "New points earned (current: " + existingRacer.getPointsEarned() + "): ",
-                                    existingRacer.getPointsEarned(),
-                                    scanner
-                            );
+                                    existingRacer.getPointsEarned(), scanner);
 
                             System.out.print("New nationality (current: " + existingRacer.getNationality() + "): ");
                             String nationality = scanner.nextLine();
                             if (nationality.isEmpty()) nationality = existingRacer.getNationality();
 
+                            System.out.print("New image link (current: " + existingRacer.getImageLink() + ", leave blank to keep current): ");
+                            String imageLink = scanner.nextLine();
+                            if (imageLink.isEmpty()) imageLink = existingRacer.getImageLink(); // Preserve existing imageLink
+
                             MonzaPerformanceDTO updatedRacer = new MonzaPerformanceDTO(
-                                    id,
-                                    name,
-                                    team,
-                                    fastestLapTime,
-                                    finalPosition,
-                                    gridPosition,
-                                    pointsEarned,
-                                    nationality
-                            );
+                                    id, name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality, imageLink);
 
                             if (racerDAO.updateRacer(id, updatedRacer)) {
                                 System.out.println("Racer updated successfully!");
                             } else {
                                 System.out.println("Update failed. Please check the ID and try again.");
                             }
-                        } catch(InputMismatchException e) {
+                        } catch (InputMismatchException e) {
                             System.out.println("Invalid input! Please enter a valid ID number.");
                             scanner.nextLine();
                         }
@@ -241,6 +234,7 @@ public class OldMainApp {
 
                     case 14 -> {
                         System.out.println("Exiting...");
+                        scanner.close();
                         System.exit(0);
                     }
 

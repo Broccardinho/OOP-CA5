@@ -35,7 +35,8 @@ public class MonzaPerformanceDAO {
                             racer.getFinalPosition(),
                             racer.getGridPosition(),
                             racer.getPointsEarned(),
-                            racer.getNationality()
+                            racer.getNationality(),
+                            racer.getImageLink()
                     );
                 }
             }
@@ -62,7 +63,8 @@ public class MonzaPerformanceDAO {
                             rs.getInt("finalPosition"),
                             rs.getInt("gridPosition"),
                             rs.getInt("pointsEarned"),
-                            rs.getString("nationality")
+                            rs.getString("nationality"),
+                            rs.getString("imageLink")
                     );
                 } else {
                     return null; // No racer found
@@ -107,7 +109,8 @@ public class MonzaPerformanceDAO {
                         rs.getInt("finalPosition"),
                         rs.getInt("gridPosition"),
                         rs.getInt("pointsEarned"),
-                        rs.getString("nationality")
+                        rs.getString("nationality"),
+                        rs.getString("imageLink")
                 ));
             }
         } catch (SQLException e) {
@@ -156,7 +159,8 @@ public class MonzaPerformanceDAO {
                         rs.getInt("finalPosition"),
                         rs.getInt("gridPosition"),
                         rs.getInt("pointsEarned"),
-                        rs.getString("nationality")
+                        rs.getString("nationality"),
+                        rs.getString("imageLink")
                 ));
             }
 

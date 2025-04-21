@@ -3,6 +3,8 @@ package org.example.main;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.example.client.F1Client;
 import org.example.dto.MonzaPerformanceDTO;
 import java.io.IOException;
@@ -18,7 +20,16 @@ public class MainController {
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> gridPosColumn;
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> finalPosColumn;
     @FXML private TableColumn<MonzaPerformanceDTO, Integer> pointsColumn;
-
+    @FXML private TextField addName;
+    @FXML private TextField addTeam;
+    @FXML private TextField addNationality;
+    @FXML private TextField addFastestLap;
+    @FXML private TextField addGridPos;
+    @FXML private TextField addFinalPos;
+    @FXML private TextField addPoints;
+    @FXML private TextField addImageLink;
+    @FXML private ImageView racerImageView;
+    @FXML private TextField deleteIdInput;
     @FXML private TextField idInput;
     @FXML private Label statusLabel;
 
@@ -26,14 +37,42 @@ public class MainController {
 
     @FXML
     private void initialize() {
-        // Set up the table columns
         setupTableColumns();
-
-        // Connect to server
         connectToServer();
-
-        // Load initial data
         refreshTable();
+
+        // Add selection listener for images
+        racersTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        updateRacerImage(newSelection.getImageLink());
+                    } else {
+                        updateRacerImage(null);
+                    }
+                });
+    }
+
+    private void updateRacerImage(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                Image image = new Image(imageUrl, true); // Async loading
+                racerImageView.setImage(image);
+
+                // Log loading errors
+                image.errorProperty().addListener((obs, wasError, isNowError) -> {
+                    if (isNowError) {
+                        racerImageView.setImage(null);
+                        statusLabel.setText("Failed to load image: Invalid URL");
+                    }
+                });
+            } catch (Exception e) {
+                racerImageView.setImage(null);
+                statusLabel.setText("Error loading image: " + e.getMessage());
+            }
+        } else {
+            racerImageView.setImage(null);
+            statusLabel.setText("No image available for this racer");
+        }
     }
 
     private void setupTableColumns() {
@@ -46,19 +85,16 @@ public class MainController {
         finalPosColumn.setCellValueFactory(new PropertyValueFactory<>("finalPosition"));
         pointsColumn.setCellValueFactory(new PropertyValueFactory<>("pointsEarned"));
 
-        // Format the fastest lap time column
-        fastestLapColumn.setCellFactory(column -> {
-            return new TableCell<MonzaPerformanceDTO, Double>() {
-                @Override
-                protected void updateItem(Double item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(String.format("%.3f", item));
-                    }
+        fastestLapColumn.setCellFactory(column -> new TableCell<MonzaPerformanceDTO, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.3f", item));
                 }
-            };
+            }
         });
     }
 
@@ -78,6 +114,13 @@ public class MainController {
             List<MonzaPerformanceDTO> racers = f1Client.getAllRacers();
             racersTable.getItems().setAll(racers);
             statusLabel.setText("Loaded " + racers.size() + " racers from server");
+
+            // Select first racer by default to show their image
+            if (!racers.isEmpty()) {
+                racersTable.getSelectionModel().selectFirst();
+            } else {
+                updateRacerImage(null);
+            }
         } catch (IOException e) {
             statusLabel.setText("Error loading data: " + e.getMessage());
             showErrorAlert("Data Load Error", "Failed to load racers", e.getMessage());
@@ -98,10 +141,12 @@ public class MainController {
 
             if (racer != null) {
                 racersTable.getItems().setAll(racer);
+                updateRacerImage(racer.getImageLink());
                 statusLabel.setText("Found racer: " + racer.getName());
             } else {
-                statusLabel.setText("No racer found with ID: " + id);
                 racersTable.getItems().clear();
+                updateRacerImage(null);
+                statusLabel.setText("No racer found with ID: " + id);
             }
         } catch (NumberFormatException e) {
             statusLabel.setText("Invalid ID! Please enter a number.");
@@ -124,14 +169,111 @@ public class MainController {
         alert.showAndWait();
     }
 
-    // Clean up resources when controller is no longer needed
-    public void shutdown() {
-        try {
-            if (f1Client != null) {
-                f1Client.disconnect();
-            }
-        } catch (IOException e) {
-            System.err.println("Error disconnecting from server: " + e.getMessage());
+    public void shutdown() throws IOException {
+        if (f1Client != null) {
+            f1Client.disconnect();
         }
+    }
+
+    @FXML
+    private void onDeleteRacer() {
+        String inputText = deleteIdInput.getText().trim();
+        if (inputText.isEmpty()) {
+            statusLabel.setText("Please enter an ID to delete");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(inputText);
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Delete Racer");
+            alert.setContentText("Are you sure you want to delete racer with ID: " + id + "?");
+
+            if (alert.showAndWait().get() == ButtonType.OK) {
+                boolean deleted = f1Client.deleteRacer(id);
+
+                if (deleted) {
+                    statusLabel.setText("Successfully deleted racer with ID: " + id);
+                    refreshTable();
+                } else {
+                    statusLabel.setText("No racer found with ID: " + id);
+                }
+            }
+        } catch (NumberFormatException e) {
+            statusLabel.setText("Invalid ID! Please enter a number.");
+        } catch (IOException e) {
+            statusLabel.setText("Error deleting racer: " + e.getMessage());
+            showErrorAlert("Delete Error", "Failed to delete racer", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onAddRacer() {
+        try {
+            // Validate inputs
+            if (addName.getText().isEmpty()) {
+                statusLabel.setText("Name cannot be empty");
+                return;
+            }
+            String imageLink = addImageLink.getText().trim();
+            if (imageLink.isEmpty()) {
+                imageLink = "https://example.com/default_racer.png";
+            }
+
+            MonzaPerformanceDTO newRacer = new MonzaPerformanceDTO(
+                    0,
+                    addName.getText(),
+                    addTeam.getText(),
+                    parseLapTime(addFastestLap.getText()),
+                    Integer.parseInt(addFinalPos.getText()),
+                    Integer.parseInt(addGridPos.getText()),
+                    Integer.parseInt(addPoints.getText()),
+                    addNationality.getText(),
+                    imageLink
+            );
+
+            if (f1Client.addRacer(newRacer)) {
+                statusLabel.setText("Racer added successfully!");
+                refreshTable();
+                clearAddForm();
+            } else {
+                statusLabel.setText("Failed to add racer (server error)");
+            }
+        } catch (NumberFormatException e) {
+            statusLabel.setText("Invalid number in positions/points");
+        } catch (IllegalArgumentException e) {
+            statusLabel.setText(e.getMessage());
+        } catch (IOException e) {
+            statusLabel.setText("Error: " + e.getMessage());
+        }
+    }
+
+    private double parseLapTime(String lapTime) throws IllegalArgumentException {
+        try {
+            if (lapTime.contains(":")) {
+                String[] parts = lapTime.split(":");
+                if (parts.length != 2) throw new IllegalArgumentException();
+                int minutes = Integer.parseInt(parts[0]);
+                double seconds = Double.parseDouble(parts[1]);
+                return minutes * 60 + seconds;
+            } else {
+                return Double.parseDouble(lapTime);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Lap time must be in SS.sss format");
+        }
+    }
+
+    private void clearAddForm() {
+        addName.clear();
+        addTeam.clear();
+        addNationality.clear();
+        addFastestLap.clear();
+        addGridPos.clear();
+        addFinalPos.clear();
+        addPoints.clear();
+        addImageLink.clear();
     }
 }

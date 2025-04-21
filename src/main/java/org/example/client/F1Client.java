@@ -44,4 +44,71 @@ public class F1Client {
         }
         return JsonConverter.jsonStringToMonzaPerformance(response);
     }
+    public boolean deleteRacer(int id) throws IOException {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid racer ID");
+        }
+
+        if (socket == null || socket.isClosed() || !socket.isConnected()) {
+            connect();
+        }
+
+        try {
+            out.println("DELETE_RACER " + id);
+            out.flush();
+
+            socket.setSoTimeout(5000);
+
+            String response = in.readLine();
+
+            if (response == null) {
+                throw new IOException("Server disconnected during operation");
+            }
+
+            if (response.startsWith("ERROR:")) {
+                String errorMsg = response.substring(6).trim();
+                if (errorMsg.contains("NOT_FOUND")) {
+                    return false;
+                }
+                throw new IOException("Server error: " + errorMsg);
+            }
+
+            return "DELETED".equals(response) || "OK".equals(response);
+
+        } catch (SocketTimeoutException e) {
+            throw new IOException("Server response timeout", e);
+        } catch (IOException e) {
+            // Clean up broken connection
+            try {
+                disconnect();
+            } catch (IOException ex) {
+                e.addSuppressed(ex);
+            }
+            throw new IOException("Failed to delete racer: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean addRacer(MonzaPerformanceDTO racer) throws IOException {
+        try {
+            String racerJson = JsonConverter.monzaPerformanceToJsonString(racer);
+
+            out.println("ADD_RACER " + racerJson);
+            out.flush();
+
+            String response = in.readLine();
+
+            if (response == null) {
+                throw new IOException("No response from server");
+            }
+
+            if (response.startsWith("ERROR:")) {
+                throw new IOException(response.substring(6).trim());
+            }
+
+            JsonConverter.jsonStringToMonzaPerformance(response);
+            return true;
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Invalid server response: " + e.getMessage());
+        }
+    }
 }
