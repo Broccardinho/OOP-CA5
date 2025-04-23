@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 import org.example.client.F1Client;
 import org.example.dto.MonzaPerformanceDTO;
 import java.io.IOException;
@@ -275,5 +276,16 @@ public class MainController {
         addFinalPos.clear();
         addPoints.clear();
         addImageLink.clear();
+    }
+    @FXML
+    private void onExit() {
+        try {
+            shutdown();
+
+            Stage stage = (Stage) racersTable.getScene().getWindow();
+            stage.close();
+        } catch (IOException e) {
+            showErrorAlert("Exit Error", "Failed to shutdown properly", e.getMessage());
+        }
     }
 }

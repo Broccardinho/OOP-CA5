@@ -101,4 +101,5 @@
                     style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 5;"/>
       </VBox>
    </HBox>
+   <Button text="Exit" onAction="#onExit" style="-fx-background-color: #ff4444; -fx-text-fill: white;" />
 </VBox>
