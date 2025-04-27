@@ -9,8 +9,9 @@ public class MonzaPerformanceDTO {
     private int gridPosition;
     private int pointsEarned;
     private String nationality;
+    private String imageLink;
 
-    public MonzaPerformanceDTO(int id, String name, String team, double fastestLapTime, int finalPosition, int gridPosition, int pointsEarned, String nationality) {
+    public MonzaPerformanceDTO(int id, String name, String team, double fastestLapTime, int finalPosition, int gridPosition, int pointsEarned, String nationality, String imageLink) {
         this.id = id;
         this.name = name;
         this.team = team;
@@ -19,6 +20,7 @@ public class MonzaPerformanceDTO {
         this.gridPosition = gridPosition;
         this.pointsEarned = pointsEarned;
         this.nationality = nationality;
+        this.imageLink = imageLink;
     }
 
     // Getters
@@ -30,6 +32,7 @@ public class MonzaPerformanceDTO {
     public int getGridPosition() { return gridPosition; }
     public int getPointsEarned() { return pointsEarned; }
     public String getNationality() { return nationality; }
+    public String getImageLink() { return imageLink; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -40,6 +43,7 @@ public class MonzaPerformanceDTO {
     public void setGridPosition(int gridPosition) { this.gridPosition = gridPosition; }
     public void setPointsEarned(int pointsEarned) { this.pointsEarned = pointsEarned; }
     public void setNationality(String nationality) { this.nationality = nationality; }
+    public void setImageLink(String imageLink) { this.imageLink = imageLink; }
 
     @Override
     public String toString() {
@@ -52,6 +56,7 @@ public class MonzaPerformanceDTO {
                 ", gridPosition=" + gridPosition +
                 ", pointsEarned=" + pointsEarned +
                 ", nationality='" + nationality + '\'' +
+                ", imageLink='" + imageLink + '\'' +
                 '}';
     }
 }

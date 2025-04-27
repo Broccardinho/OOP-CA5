@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.main.MainController" spacing="10" alignment="CENTER">
+      fx:controller="org.example.main.MainController" spacing="8" alignment="TOP_CENTER">
    <padding>
       <Insets top="10" right="10" bottom="10" left="10"/>
    </padding>
@@ -20,18 +21,85 @@
       <Button text="Show All" onAction="#showAllRacers"/>
    </HBox>
 
+   <HBox spacing="10" alignment="CENTER_LEFT">
+      <Label text="Delete racer by ID:"/>
+      <TextField fx:id="deleteIdInput" prefWidth="100"/>
+      <Button text="Delete" onAction="#onDeleteRacer" style="-fx-background-color: #ff4444; -fx-text-fill: white;"/>
+   </HBox>
+
+   <Label text="Add New Racer:" style="-fx-font-weight: bold;"/>
+
+   <!-- Horizontal form layout -->
+   <HBox spacing="20" alignment="TOP_LEFT">
+      <!-- Column 1 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Name:" minWidth="80"/>
+            <TextField fx:id="addName" prefWidth="150"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Team:" minWidth="80"/>
+            <TextField fx:id="addTeam" prefWidth="150"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Nationality:" minWidth="80"/>
+            <TextField fx:id="addNationality" prefWidth="150"/>
+         </HBox>
+      </VBox>
+
+      <!-- Column 2 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Fastest Lap:" minWidth="80"/>
+            <TextField fx:id="addFastestLap" prefWidth="80"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Grid Pos:" minWidth="80"/>
+            <TextField fx:id="addGridPos" prefWidth="50"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Final Pos:" minWidth="80"/>
+            <TextField fx:id="addFinalPos" prefWidth="50"/>
+         </HBox>
+      </VBox>
+
+      <!-- Column 3 -->
+      <VBox spacing="5">
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Points:" minWidth="80"/>
+            <TextField fx:id="addPoints" prefWidth="50"/>
+         </HBox>
+         <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Image Link:" minWidth="80"/>
+            <TextField fx:id="addImageLink" prefWidth="150"/>
+         </HBox>
+         <Button text="Add Racer" onAction="#onAddRacer"
+                 style="-fx-background-color: #4CAF50; -fx-text-fill: white;"
+                 HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+      </VBox>
+   </HBox>
+
    <Label fx:id="statusLabel" style="-fx-text-fill: red;"/>
 
-   <TableView fx:id="racersTable" prefHeight="400" prefWidth="750">
-      <columns>
-         <TableColumn text="ID" prefWidth="50" fx:id="idColumn"/>
-         <TableColumn text="Name" prefWidth="150" fx:id="nameColumn"/>
-         <TableColumn text="Team" prefWidth="120" fx:id="teamColumn"/>
-         <TableColumn text="Nationality" prefWidth="100" fx:id="nationalityColumn"/>
-         <TableColumn text="Fastest Lap" prefWidth="80" fx:id="fastestLapColumn"/>
-         <TableColumn text="Grid Pos" prefWidth="60" fx:id="gridPosColumn"/>
-         <TableColumn text="Final Pos" prefWidth="60" fx:id="finalPosColumn"/>
-         <TableColumn text="Points" prefWidth="60" fx:id="pointsColumn"/>
-      </columns>
-   </TableView>
+   <!-- Table and ImageView side by side -->
+   <HBox spacing="10" alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
+      <TableView fx:id="racersTable" prefWidth="550" prefHeight="400">
+         <columns>
+            <TableColumn text="ID" prefWidth="50" fx:id="idColumn"/>
+            <TableColumn text="Name" prefWidth="150" fx:id="nameColumn"/>
+            <TableColumn text="Team" prefWidth="120" fx:id="teamColumn"/>
+            <TableColumn text="Nationality" prefWidth="100" fx:id="nationalityColumn"/>
+            <TableColumn text="Fastest Lap" prefWidth="80" fx:id="fastestLapColumn"/>
+            <TableColumn text="Grid Pos" prefWidth="60" fx:id="gridPosColumn"/>
+            <TableColumn text="Final Pos" prefWidth="60" fx:id="finalPosColumn"/>
+            <TableColumn text="Points" prefWidth="60" fx:id="pointsColumn"/>
+         </columns>
+      </TableView>
+      <VBox spacing="5" alignment="TOP_CENTER">
+         <Label text="Racer Image" style="-fx-font-weight: bold;"/>
+         <ImageView fx:id="racerImageView" fitWidth="150" fitHeight="150" preserveRatio="true"
+                    style="-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 5;"/>
+      </VBox>
+   </HBox>
+   <Button text="Exit" onAction="#onExit" style="-fx-background-color: #ff4444; -fx-text-fill: white;" />
 </VBox>

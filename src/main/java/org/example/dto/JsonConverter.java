@@ -17,6 +17,7 @@ public class JsonConverter {
         obj.put("gridPosition", dto.getGridPosition());
         obj.put("pointsEarned", dto.getPointsEarned());
         obj.put("nationality", dto.getNationality());
+        obj.put("imageLink", dto.getImageLink() != null ? dto.getImageLink() : "");
         return obj.toString();
     }
 
@@ -33,6 +34,7 @@ public class JsonConverter {
             obj.put("gridPosition", dto.getGridPosition());
             obj.put("pointsEarned", dto.getPointsEarned());
             obj.put("nationality", dto.getNationality());
+            obj.put("imageLink", dto.getImageLink() != null ? dto.getImageLink() : "");
             jsonArray.put(obj);
         }
         return jsonArray.toString();
@@ -49,7 +51,8 @@ public class JsonConverter {
                 obj.getInt("finalPosition"),
                 obj.getInt("gridPosition"),
                 obj.getInt("pointsEarned"),
-                obj.getString("nationality")
+                obj.getString("nationality"),
+                obj.optString("imageLink", "")
         );
     }
 
@@ -68,7 +71,8 @@ public class JsonConverter {
                     obj.getInt("finalPosition"),
                     obj.getInt("gridPosition"),
                     obj.getInt("pointsEarned"),
-                    obj.getString("nationality")
+                    obj.getString("nationality"),
+                    obj.optString("imageLink", "")
             );
             dtoList.add(dto);
         }

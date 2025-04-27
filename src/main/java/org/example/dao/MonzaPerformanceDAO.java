@@ -9,7 +9,8 @@ import java.util.List;
 public class MonzaPerformanceDAO {
 
     public MonzaPerformanceDTO addRacer(MonzaPerformanceDTO racer) {
-        String sql = "INSERT INTO MonzaPerformance (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Added imageLink to the SQL query
+        String sql = "INSERT INTO MonzaPerformance (name, team, fastestLapTime, finalPosition, gridPosition, pointsEarned, nationality, imageLink) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -21,8 +22,9 @@ public class MonzaPerformanceDAO {
             stmt.setInt(5, racer.getGridPosition());
             stmt.setInt(6, racer.getPointsEarned());
             stmt.setString(7, racer.getNationality());
+            stmt.setString(8, racer.getImageLink());  // This was missing in the SQL query
 
-            stmt.executeUpdate();  // Execute AFTER setting parameters
+            stmt.executeUpdate();
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -35,7 +37,8 @@ public class MonzaPerformanceDAO {
                             racer.getFinalPosition(),
                             racer.getGridPosition(),
                             racer.getPointsEarned(),
-                            racer.getNationality()
+                            racer.getNationality(),
+                            racer.getImageLink()
                     );
                 }
             }
@@ -62,7 +65,8 @@ public class MonzaPerformanceDAO {
                             rs.getInt("finalPosition"),
                             rs.getInt("gridPosition"),
                             rs.getInt("pointsEarned"),
-                            rs.getString("nationality")
+                            rs.getString("nationality"),
+                            rs.getString("imageLink")
                     );
                 } else {
                     return null; // No racer found
@@ -107,7 +111,8 @@ public class MonzaPerformanceDAO {
                         rs.getInt("finalPosition"),
                         rs.getInt("gridPosition"),
                         rs.getInt("pointsEarned"),
-                        rs.getString("nationality")
+                        rs.getString("nationality"),
+                        rs.getString("imageLink")
                 ));
             }
         } catch (SQLException e) {
@@ -156,7 +161,8 @@ public class MonzaPerformanceDAO {
                         rs.getInt("finalPosition"),
                         rs.getInt("gridPosition"),
                         rs.getInt("pointsEarned"),
-                        rs.getString("nationality")
+                        rs.getString("nationality"),
+                        rs.getString("imageLink")
                 ));
             }
 
